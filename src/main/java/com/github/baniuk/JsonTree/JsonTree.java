@@ -311,8 +311,8 @@ public class JsonTree {
    * @param args CLI arguments
    * @return program exit status
    */
-  public static int main(String[] args) {
+  public static void main(String[] args) {
     JsonTree app = new JsonTree(args);
-    return app.cliErrorStatus;
+    System.exit(app.cliErrorStatus);
   }
 }

@@ -34,3 +34,21 @@ This simple tool display Json files in form of hierarchical Tree. Text output an
 
 ## Usage
 
+```
+> java -jar .\target\JsonTree-1.0.0-SNAPSHOT.jar
+
+Parsing failed. Reason: Missing required option: f
+usage: JsonTree -f <FILE> [-gui] [-help]
+ -f <FILE>   JSon file to open
+ -gui        Show GUI in place of stdout
+ -help       print this message
+```
+
+## Build
+
+```bash
+mvn package                     # produces clear jar
+mvn site                        # build project site
+mvn package -P deploy           # produces executabe jar with dependencies
+mvn package -P dev-collectdeps  # extracts dependencies
+```
