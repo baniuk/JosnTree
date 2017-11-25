@@ -1,6 +1,6 @@
 # JsonTree
 
-This simple tool display Json files in form of hierarchical Tree. Text output and GUI are supported. See examples below:
+This simple tool displays Json files in form of hierarchical Tree. Text output and GUI are supported. See examples below:
 
 ```text
 +com.google.gson.internal.LinkedTreeMap (root)
