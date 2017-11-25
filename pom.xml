@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.baniuk</groupId>
   <artifactId>JsonTree</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <packaging>jar</packaging>
   <name>JsonTree</name>
   <url>https://www.github.com/baniuk/JsonTree</url>
@@ -11,7 +11,7 @@
       <name>MIT</name>
       <url>https://github.com/baniuk/jsontree/blob/master/LICENSE</url>
       <distribution>repo</distribution>
-      <comments/>
+      <comments />
     </license>
   </licenses>
   <developers>
@@ -41,7 +41,7 @@
     <url>https://github.com/baniuk/JsonTree/</url>
     <connection>scm:git:https://github.com/baniuk/JsonTree.git</connection>
     <developerConnection>scm:git:https://github.com/baniuk/JsonTree.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v1.0.0</tag>
   </scm>
   <issueManagement>
     <system>GitHub</system>
@@ -50,7 +50,7 @@
   <ciManagement>
     <system>None</system>
   </ciManagement>
-  <distributionManagement></distributionManagement>
+  <distributionManagement />
   <inceptionYear>2017</inceptionYear>
   <build>
     <plugins>
