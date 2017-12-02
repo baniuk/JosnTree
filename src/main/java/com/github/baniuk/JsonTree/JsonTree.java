@@ -3,6 +3,7 @@ package com.github.baniuk.JsonTree;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -59,6 +61,7 @@ public class JsonTree {
   JCheckBox chbExpand;
   int lastRowIndex; // last row selected, used to restore after reload
   TreePath lastPath;
+  JLabel lb_keyValue;
 
   /**
    * Constructor used when object is initialised from cli.
@@ -169,9 +172,17 @@ public class JsonTree {
     JScrollPane treeView = new JScrollPane(tree);
     panel.add(treeView, BorderLayout.CENTER);
 
-    // south panel
+    // -- south panel
     JPanel panelB = new JPanel();
-    panelB.setLayout(new FlowLayout(FlowLayout.LEFT));
+    panelB.setLayout(new GridLayout(2, 1));
+    JPanel row1 = new JPanel();
+    JPanel row2 = new JPanel();
+    panelB.add(row2);
+    panelB.add(row1);
+    panel.add(panelB, BorderLayout.SOUTH);
+
+    // -- row 1 south panel
+    row1.setLayout(new FlowLayout(FlowLayout.LEFT));
     chbExpand = new JCheckBox(); // expand or collapse tree
     chbExpand.setAction(
             new ActionFold("Fold/Expand all", "Fold or unfold all", Actions.VK_TREE_FOLD, this));
@@ -188,12 +199,16 @@ public class JsonTree {
         }
       }
     });
-    panelB.add(chbExpand);
-    panel.add(panelB, BorderLayout.SOUTH);
+    row1.add(chbExpand);
 
     JButton btnReload = new JButton(); // reload json
     btnReload.setAction(new ActionReload("Reload", "Reload json file", Actions.VK_RELOAD, this));
-    panelB.add(btnReload);
+    row1.add(btnReload);
+
+    // -- row 2 south panel
+    row2.setLayout(new FlowLayout(FlowLayout.LEFT));
+    lb_keyValue = new JLabel();
+    row2.add(lb_keyValue);
 
     tree.addTreeSelectionListener(new TreeSelectionListener() { // display selected tree path
 
@@ -211,6 +226,7 @@ public class JsonTree {
           str = str.concat(node.getPathComponent(i).toString()).concat(sep);
         str = (str.length() > 0) ? str.substring(0, str.lastIndexOf(sep)) : ""; // cut last sep
         LOGGER.info(str);
+        lb_keyValue.setText(node.getPathComponent(node.getPathCount() - 1).toString());
 
       }
     });
@@ -263,14 +279,13 @@ public class JsonTree {
     // Collection - if json node refers to array
     // java class for primitives (if value can not be expanded)
     if (node instanceof Map) { // node is class
-      viewer.viewBranch(node.getClass().getTypeName() + " (" + keyname + ")", level);
+      viewer.viewBranch(keyname + " (" + "Class" + ")", level);
       for (Object k : ((Map) node).keySet()) { // iterate over class properties (keys in map)
         print(((Map) node).get(k), k.toString(), level + 1); // pass value recursive
       }
     } else if (node instanceof Collection) { // if node is array
       int l = ((Collection) node).size();
-      viewer.viewBranch(
-              node.getClass().getTypeName() + " (" + keyname + " " + l + " elements" + ")", level);
+      viewer.viewBranch(keyname + " (" + "Array" + "[" + l + " elements]" + ")", level);
       Iterator it = ((Collection) node).iterator();
       int i = 0; // array index
       if (l > 0) { // if there is at least one element
@@ -281,7 +296,7 @@ public class JsonTree {
         viewer.viewLeaf("empty", level + 1); // TODO should not be printed maybe
       }
     } else { // not class nor array - primitive value (but can be java class e.g. string)
-      viewer.viewLeaf(node.getClass().getTypeName() + " (" + keyname + ")", level);
+      viewer.viewLeaf(keyname + " (" + node.getClass().getSimpleName() + ")", level);
     }
   }
 
