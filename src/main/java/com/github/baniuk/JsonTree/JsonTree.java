@@ -3,8 +3,6 @@ package com.github.baniuk.JsonTree;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
@@ -51,15 +49,16 @@ import com.google.gson.Gson;
 public class JsonTree {
   private static final Logger LOGGER = LoggerFactory.getLogger(JsonTree.class.getName());
   private Options options = null;
-  private Path jsonFile;
+  Path jsonFile;
   private boolean showGui = false;
   private int cliErrorStatus = 0; // returned to main
-  private JTree tree;
+  JTree tree;
   private IView viewer;
-  private DefaultMutableTreeNode top;
+  DefaultMutableTreeNode top;
   private JFrame frame = null;
-  private JCheckBox chbExpand;
-  private int lastRowIndex; // last row selected, used to restore after reload
+  JCheckBox chbExpand;
+  int lastRowIndex; // last row selected, used to restore after reload
+  TreePath lastPath;
 
   /**
    * Constructor used when object is initialised from cli.
@@ -110,7 +109,7 @@ public class JsonTree {
   /**
    * Reset current tree object for GUI and clear all nodes except root.
    */
-  private void initGuiTree() {
+  void initGuiTree() {
     tree.setModel(null);
     top = new DefaultMutableTreeNode("Document");
     tree.setModel(new DefaultTreeModel(top));
@@ -173,47 +172,27 @@ public class JsonTree {
     // south panel
     JPanel panelB = new JPanel();
     panelB.setLayout(new FlowLayout(FlowLayout.LEFT));
-    chbExpand = new JCheckBox("Expand"); // expand or collapse tree
+    chbExpand = new JCheckBox(); // expand or collapse tree
+    chbExpand.setAction(
+            new ActionFold("Fold/Expand all", "Fold or unfold all", Actions.VK_TREE_FOLD, this));
     chbExpand.addItemListener(new ItemListener() {
-
+      // set action command depending on button state
       @Override
       public void itemStateChanged(ItemEvent e) {
         // expand or collapse all
         if (e.getStateChange() == ItemEvent.DESELECTED) {
-          for (int i = 0; i < tree.getRowCount(); i++) {
-            tree.collapseRow(i);
-          }
+          ((JCheckBox) e.getItem()).setActionCommand(Actions.A_TREE_FOLD);
         }
         if (e.getStateChange() == ItemEvent.SELECTED) {
-          for (int i = 0; i < tree.getRowCount(); i++) {
-            tree.expandRow(i);
-          }
+          ((JCheckBox) e.getItem()).setActionCommand(Actions.A_TREE_UNFOLD);
         }
       }
     });
     panelB.add(chbExpand);
     panel.add(panelB, BorderLayout.SOUTH);
 
-    JButton btnReload = new JButton("Reload"); // reload json
-    btnReload.addActionListener(new ActionListener() {
-
-      @Override
-      public void actionPerformed(ActionEvent e) { // reload json without changing view
-        initGuiTree();
-        run();
-        if (chbExpand.isSelected()) { // keep state of window when reloaded
-          for (int i = 0; i < tree.getRowCount(); i++) {
-            tree.expandRow(i);
-          }
-        } else {
-          for (int i = 0; i < tree.getRowCount(); i++) {
-            tree.collapseRow(i);
-          }
-        }
-        tree.setSelectionRow(lastRowIndex); // select last row (after reload it can be another row)
-
-      }
-    });
+    JButton btnReload = new JButton(); // reload json
+    btnReload.setAction(new ActionReload("Reload", "Reload json file", Actions.VK_RELOAD, this));
     panelB.add(btnReload);
 
     tree.addTreeSelectionListener(new TreeSelectionListener() { // display selected tree path
@@ -226,6 +205,7 @@ public class JsonTree {
           return;
         }
         lastRowIndex = tree.getSelectionRows()[0]; // remember selected row number
+        lastPath = tree.getSelectionPath();
         String str = "";
         for (int i = 1; i < node.getPathCount(); i++) // produce output string
           str = str.concat(node.getPathComponent(i).toString()).concat(sep);
@@ -272,7 +252,7 @@ public class JsonTree {
    * @param level level of the indent. 0 means root of json.
    */
   @SuppressWarnings("rawtypes")
-  private void print(Object node, String keyname, int level) {
+  void print(Object node, String keyname, int level) {
     boolean all = false; // true to show all elements of list, false to show first on eonly
     if (node == null) { // stop processing if null value
       viewer.viewLeaf("null value", level);
