@@ -13,4 +13,7 @@ class Actions {
 
   final static String A_RELOAD = "Reload json";
   final static Integer VK_RELOAD = new Integer(KeyEvent.VK_R);
+
+  final static String A_SEARCH_UP = "Search Bck";
+  final static String A_SEARCH_DW = "Search Fwd";
 }

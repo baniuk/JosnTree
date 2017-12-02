@@ -14,12 +14,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -49,7 +51,7 @@ import com.google.gson.Gson;
  *
  */
 public class JsonTree {
-  private static final Logger LOGGER = LoggerFactory.getLogger(JsonTree.class.getName());
+  static final Logger LOGGER = LoggerFactory.getLogger(JsonTree.class.getName());
   private Options options = null;
   Path jsonFile;
   private boolean showGui = false;
@@ -62,6 +64,7 @@ public class JsonTree {
   int lastRowIndex; // last row selected, used to restore after reload
   TreePath lastPath;
   JLabel lb_keyValue;
+  JTextField tf_search;
 
   /**
    * Constructor used when object is initialised from cli.
@@ -120,6 +123,7 @@ public class JsonTree {
     tree.updateUI();
     viewer = new TreeViewer(top); // replace viewer to GUI, must be here to reinitialise it with top
                                   // root node
+    lastPath = new TreePath(top);
   }
 
   /**
@@ -174,11 +178,13 @@ public class JsonTree {
 
     // -- south panel
     JPanel panelB = new JPanel();
-    panelB.setLayout(new GridLayout(2, 1));
+    panelB.setLayout(new GridLayout(3, 1));
     JPanel row1 = new JPanel();
     JPanel row2 = new JPanel();
+    JPanel row3 = new JPanel();
     panelB.add(row2);
     panelB.add(row1);
+    panelB.add(row3);
     panel.add(panelB, BorderLayout.SOUTH);
 
     // -- row 1 south panel
@@ -210,6 +216,24 @@ public class JsonTree {
     lb_keyValue = new JLabel();
     row2.add(lb_keyValue);
 
+    // -- row 3 south panel
+    row3.setLayout(new FlowLayout(FlowLayout.LEFT));
+    tf_search = new JTextField(16);
+    row3.add(tf_search);
+    AbstractAction search = new ActionSearch(Actions.A_SEARCH_DW, "Search json", this);
+    tf_search.setAction(search);
+    tf_search.setActionCommand(Actions.A_SEARCH_DW);
+    JButton btn_up = new JButton();
+    btn_up.setAction(search);
+    btn_up.setActionCommand(Actions.A_SEARCH_UP);
+    btn_up.setText(Actions.A_SEARCH_UP);
+    JButton btn_down = new JButton();
+    btn_down.setAction(search);
+    btn_down.setText(Actions.A_SEARCH_DW);
+    btn_down.setActionCommand(Actions.A_SEARCH_DW);
+    row3.add(btn_up);
+    row3.add(btn_down);
+
     tree.addTreeSelectionListener(new TreeSelectionListener() { // display selected tree path
 
       @Override
@@ -219,8 +243,8 @@ public class JsonTree {
         if (node == null) { // can be after clearing tree
           return;
         }
-        lastRowIndex = tree.getSelectionRows()[0]; // remember selected row number
         lastPath = tree.getSelectionPath();
+        lastRowIndex = tree.getRowForPath(lastPath);
         String str = "";
         for (int i = 1; i < node.getPathCount(); i++) // produce output string
           str = str.concat(node.getPathComponent(i).toString()).concat(sep);
@@ -279,7 +303,8 @@ public class JsonTree {
     // Collection - if json node refers to array
     // java class for primitives (if value can not be expanded)
     if (node instanceof Map) { // node is class
-      viewer.viewBranch(keyname + " (" + "Class" + ")", level);
+      String firstNodeLabel = level == 0 ? "File" : "Class";
+      viewer.viewBranch(keyname + " (" + firstNodeLabel + ")", level);
       for (Object k : ((Map) node).keySet()) { // iterate over class properties (keys in map)
         print(((Map) node).get(k), k.toString(), level + 1); // pass value recursive
       }

@@ -25,6 +25,18 @@ public abstract class JsonTreeAbstractAction extends AbstractAction {
     jt = jsonTree;
   }
 
+  /**
+   * @param name
+   * @param desc
+   * @param mnemonic
+   * @param jsonTree
+   */
+  public JsonTreeAbstractAction(String name, String desc, JsonTree jsonTree) {
+    super(name);
+    putValue(SHORT_DESCRIPTION, desc);
+    jt = jsonTree;
+  }
+
   /*
    * (non-Javadoc)
    * 
