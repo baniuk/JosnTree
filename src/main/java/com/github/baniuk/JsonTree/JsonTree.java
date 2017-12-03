@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -220,17 +219,14 @@ public class JsonTree {
     row3.setLayout(new FlowLayout(FlowLayout.LEFT));
     tf_search = new JTextField(16);
     row3.add(tf_search);
-    AbstractAction search = new ActionSearch(Actions.A_SEARCH_DW, "Search json", this);
+    ActionSearch search = new ActionSearch.ActionSearchForward(Actions.A_SEARCH_FORWARD,
+            "Search json forward", Actions.VK_SEARCH_FORWARD, this);
     tf_search.setAction(search);
-    tf_search.setActionCommand(Actions.A_SEARCH_DW);
     JButton btn_up = new JButton();
     btn_up.setAction(search);
-    btn_up.setActionCommand(Actions.A_SEARCH_UP);
-    btn_up.setText(Actions.A_SEARCH_UP);
     JButton btn_down = new JButton();
-    btn_down.setAction(search);
-    btn_down.setText(Actions.A_SEARCH_DW);
-    btn_down.setActionCommand(Actions.A_SEARCH_DW);
+    btn_down.setAction(new ActionSearch.ActionSearchBackward(Actions.A_SEARCH_BACKWARD,
+            "Search json bacward", Actions.VK_SEARCH_BACKWARD, this));
     row3.add(btn_up);
     row3.add(btn_down);
 
